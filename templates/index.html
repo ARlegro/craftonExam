@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css"
+    />
+    <script
+      src="https://code.jquery.com/jquery-3.5.1.min.js"
+      integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
+      crossorigin="anonymous"
+    ></script>
+    <script
+      defer
+      src="https://use.fontawesome.com/releases/v6.4.0/js/all.js"
+    ></script>
+    <title>Document</title>
+    <style>
+      .site-wrapper {
+        margin: 0 auto; /* 가운데 정렬 */
+        max-width: 1024px; /* 이 값까지만 확장 */
+        padding: 0 1rem; /* 좌우 여백 */
+      }
+
+      .hero {
+        border-radius: 10px;
+        padding-right: 150px;
+        margin-bottom: -50px;
+      }
+
+      .card {
+        border-radius: 10px;
+        border: 2px solid #1359c2;
+        padding: 20px;
+      }
+
+      .tag {
+        font-size: 0.5em;
+      }
+
+      #like-btn {
+        color: red;
+        text-decoration: none;
+        margin-left: 15px;
+      }
+
+      #submit-btn {
+        margin-bottom: -25px;
+      }
+
+      .buttons.is-flex-wrap-nowrap .button {
+        flex: 1;
+        min-width: 0;
+      }
+    </style>
+    <script>
+      $(document).ready(function () {
+        showMemoList();
+        // 저장하기 시 이벤트 : 제목, 내용 전달
+        $(document).on("click", "#submit-btn", function (e) {
+          e.preventDefault();
+          const title = $("#memo-title").val();
+          const content = $("#memo-content").val();
+          console.log("제출 할 제목:", title);
+          console.log("제출 할 내용:", content);
+          submitMemo(title, content);
+          $("#memo-title").val("");
+          $("#memo-content").val("");
+          showMemoList();
+        });
+
+        // card 수정 버튼 이벤트 : 화면 바뀜
+        $(document).on("click", "#edit-button", function (e) {
+          e.preventDefault();
+          const cardElement = $(this).closest(".card");
+          const memoId = $(this).closest("[data-id]").data("id");
+          const title = cardElement
+            .find("#card-title")
+            .text()
+            .trim()
+            .replace(/\s+/g, " ");
+          const content = cardElement
+            .find("#card-text")
+            .text()
+            .trim()
+            .replace(/\s+/g, " ");
+          memoCard = {
+            _id: memoId,
+            title: title,
+            content: content,
+          };
+          makeEditForm(memoCard);
+          cardElement.replaceWith(makeEditForm(memoCard));
+        });
+
+        // card 삭제 버튼 이벤트 : 삭제
+        $(document).on("click", "#delete-button", function (e) {
+          e.preventDefault();
+          const deletingMemoId = $(this).closest("[data-id]").data("id");
+          console.log("삭제할 메모 ID:", deletingMemoId);
+          deleteMemo(deletingMemoId);
+        });
+
+        // 좋아요 버튼 이벤트 : 좋아요 수 증가
+        $(document).on("click", "#link-like", function (e) {
+          e.preventDefault();
+          const memoId = $(this).closest("[data-id]").data("id");
+          console.log("좋아요 할 메모 ID:", memoId);
+          likeMemo(memoId);
+        });
+
+        // card 수정 후 저장 버튼 이벤트 : 제목, 내용 전달
+        $(document).on("click", "#save-button", function (e) {
+          e.preventDefault();
+          const cardElement = $(this).closest(".card");
+          const id = $(this).data("id");
+          const newTitle = cardElement.find("#new-title").val();
+          const newContent = cardElement.find("#new-text").val();
+          editMemo(id, newTitle, newContent);
+          $("#new-title").val("");
+          $("#new-text").val("");
+          showMemoList();
+        });
+      });
+
+      function makeEditForm(memoCard) {
+        const { _id, title, content } = memoCard;
+        console.log("수정할 메모 카드:", memoCard);
+        return /*html*/ `
+              <div class="card">
+                <input
+                  id="new-title"
+                  class="input is-link"
+                  type="text"
+                  value="${title}"
+                />
+                <div class="field is-horizontal mt-3">
+                  <div class="field-body has-text-left">
+                    <div class="field">
+                      <textarea
+                        id="new-text"
+                        class="textarea"
+                      >${content}</textarea>
+                    </div>
+                  </div>
+                </div>
+                <button 
+                  id="save-button"
+                  class="button is-success has-text-weight-bold"
+                  data-id="${_id}"
+                >
+                  저장
+                </button>
+              </div>
+          `;
+      }
+
+      function deleteMemo(id) {
+        $.ajax({
+          type: "DELETE",
+          url: `/memos/${id}`,
+          data: {},
+          success: function (response) {
+            if (response["result"] != "success") {
+              console.error("메모 삭제 실패:", response);
+              return;
+            }
+            console.log("메모 삭제 성공:", response);
+            showMemoList();
+          },
+          error: function (error) {
+            console.error("메모 삭제 실패:", error);
+          },
+        });
+      }
+
+      function likeMemo(id) {
+        $.ajax({
+          type: "PATCH",
+          url: `/memos/${id}/like`,
+          data: {},
+          success: function (response) {
+            if (response["result"] != "success") {
+              console.error("메모 좋아요 실패:", response);
+              return;
+            }
+            console.log("메모 좋아요 성공:", response);
+            showMemoList();
+          },
+          error: function (error) {
+            console.error("메모 좋아요 실패:", error);
+          },
+        });
+      }
+
+      function editMemo(id, title, content) {
+        $.ajax({
+          type: "PUT",
+          url: `/memos/${id}`,
+          data: JSON.stringify({
+            title: title,
+            content: content,
+          }),
+          contentType: "application/json",
+          success: function (response) {
+            if (response["result"] != "success") {
+              alert(`메모 수정 실패: ${response["message"]}`);
+              return;
+            }
+            alert("메모 수정 성공");
+          },
+          error: function (error) {
+            alert(`메모 수정 실패: ${error}`);
+          },
+        });
+      }
+
+      function submitMemo(title, content) {
+        $.ajax({
+          type: "POST",
+          url: "/memos",
+          data: JSON.stringify({
+            title: title,
+            content: content,
+          }),
+          contentType: "application/json",
+          success: function (response) {
+            if (response["result"] != "success") {
+              alert(`메모 저장 실패: ${response["message"]}`);
+              return;
+            }
+
+            alert("메모 저장 성공");
+          },
+          error: function (error) {
+            alert(`메모 저장 실패: ${error}`);
+          },
+        });
+      }
+
+      function showMemoList() {
+        $.ajax({
+          type: "GET",
+          url: "/memos",
+          data: {},
+          success: function (response) {
+            if (response["result"] != "success") {
+              alert(`메모 목록 조회 실패: ${response["message"]}`);
+              return;
+            }
+            const memos = response["memos"];
+            $("#memo-list").empty();
+            for (const memo of memos) {
+              addMemoCard(memo);
+            }
+          },
+          error: function (error) {
+            alert(`메모 목록 조회 실패: ${error}`);
+          },
+        });
+      }
+
+      function addMemoCard(memo) {
+        const { _id, title, content, likes } = memo;
+
+        const contentHtml = /*html*/ `
+                <div class="row pb-4">
+                  <p id="card-title" class="subtitle has-text-weight-bold">
+                    ${title}
+                  </p>
+                  <p class="content" id="card-text">
+                    ${content}
+                  </p>
+                  <p id="card-likes">좋아요 수: ${likes}</p>
+                </div>
+
+        `;
+
+        const footerHtml = /*html*/ `
+        <div class="row">
+                  <div
+                    class="buttons is-mobile is-vcentered is-justify-content-center px-2 is-flex-wrap-nowrap"
+                    data-id="${_id}"
+                  >
+                    <button
+                      id="edit-button"
+                      class="button is-info has-text-weight-bold"
+                    >
+                      수정
+                    </button>
+                    <button
+                      id="delete-button"
+                      class="button is-warning has-text-weight-bold"
+                      data-id=""
+                    >
+                      삭제
+                    </button>
+                    <button id="like-btn" class="button is-text">
+                      <span class="icon">
+                        <i class="fas fa-thumbs-up"></i>
+                      </span>
+                      <span>좋아요!</span>
+                    </button>
+                  </div>
+                </div>
+        `;
+
+        $("#memo-list").append(
+          `<div class="column is-one-third">
+            <div class="card" data-id="${_id}">
+              ${contentHtml}
+              ${footerHtml}
+            </div>
+          </div>`
+        );
+      }
+    </script>
+  </head>
+  <body>
+    <div class="site-wrapper">
+      <div class="container is-max-desktop">
+        <section class="section">
+          <div class="hero is-info">
+            <div class="hero-body">
+              <p class="title">
+                나홀로메모장
+                <span class="tag is-link">VER2.0</span>
+              </p>
+              <input
+                id="memo-title"
+                class="input is-link"
+                type="text"
+                placeholder="제목을 입력하세요"
+              />
+              <div class="field mt-3">
+                <div class="control">
+                  <textarea
+                    id="memo-content"
+                    class="textarea"
+                    placeholder="내용을 입력하세요"
+                  ></textarea>
+                </div>
+              </div>
+              <div>
+                <div class="is-flex">
+                  <button
+                    id="submit-btn"
+                    class="button is-link has-text-weight-bold"
+                    type="submit"
+                  >
+                    저장하기
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="section">
+          <div id="memo-list" class="columns is-multiline px-1">
+            <div class="column is-one-third">
+              <div class="card">
+                <div class="row pb-4">
+                  <p id="card-title" class="subtitle has-text-weight-bold">
+                    첫번째 제목
+                  </p>
+                  <p class="content" id="card-text">
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
+                    Dolores magnam reiciendis aperiam nam, dolore reprehenderit?
+                    Officia voluptates iste consequuntur vero mollitia numquam
+                    sapiente earum, necessitatibus, libero vel, autem eligendi
+                    tenetur.
+                  </p>
+                  <p id="card-likes">좋아요 수:</p>
+                </div>
+
+                <div class="row">
+                  <div
+                    class="buttons is-mobile is-vcentered is-justify-content-center px-2 is-flex-wrap-nowrap"
+                  >
+                    <button
+                      id="edit-button"
+                      class="button is-info has-text-weight-bold"
+                    >
+                      수정
+                    </button>
+                    <button
+                      id="delete-button"
+                      class="button is-warning has-text-weight-bold"
+                      data-id=""
+                    >
+                      삭제
+                    </button>
+                    <button id="like-btn" class="button is-text">
+                      <span class="icon">
+                        <i class="fas fa-thumbs-up"></i>
+                      </span>
+                      <span>좋아요!</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="column is-one-third">
+              <div class="card">
+                <input
+                  id="new-title"
+                  class="input is-link"
+                  type="text"
+                  placeholder="제목을 입력하세요"
+                  value="수정된 제목"
+                />
+                <div class="field is-horizontal mt-3">
+                  <div class="field-body">
+                    <div class="field">
+                      <textarea
+                        id="new-text"
+                        class="textarea"
+                        placeholder="내용을 입력하세요"
+                      ></textarea>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  id="save-button"
+                  class="button is-success has-text-weight-bold"
+                >
+                  저장
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,21 @@
+services:
+  my-db:
+    image: mongo
+    container_name: my-db
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongo-data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: favorite
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: pwd1234
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      retries: 10
+      start_period: 3s
+
+volumes:
+  mongo-data:
+  movies-data:
