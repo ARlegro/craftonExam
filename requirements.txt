@@ -1,4 +1,3 @@
-python-dotenv
 flask
 pymongo
 beautifulsoup4

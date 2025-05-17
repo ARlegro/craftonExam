@@ -10,8 +10,8 @@ database = "dbjungle"
 collection = "memos"
 user = "root"
 password = "pwd1234"
-port = 27018
-dbService = "localhost"  # "my-db"
+port = 27017
+dbService = "my-db"  # "localhost"
 
 client = MongoClient(
     f"mongodb://{user}:{password}@{dbService}:{port}/{database}?authSource=admin"

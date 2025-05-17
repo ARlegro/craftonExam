@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
     volumes:
-      - movies-data:/app/data
+      - jungle-data:/app/data
     ports:
       - "80:5000"
     depends_on:
@@ -15,11 +15,11 @@ services:
     image: mongo
     container_name: my-db
     ports:
-      - "27018:27017"
+      - "27017:27017"
     volumes:
       - mongo-data:/data/db
     environment:
-      MONGO_INITDB_DATABASE: favorite
+      MONGO_INITDB_DATABASE: dbjungle
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: pwd1234
     healthcheck:
@@ -29,5 +29,5 @@ services:
       start_period: 3s
 
 volumes:
+  jungle-data:
   mongo-data:
-  movies-data:
