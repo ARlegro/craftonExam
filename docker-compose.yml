@@ -1,4 +1,16 @@
 services:
+  my-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - movies-data:/app/data
+    ports:
+      - "80:5000"
+    depends_on:
+      my-db:
+        condition: service_healthy
+
   my-db:
     image: mongo
     container_name: my-db

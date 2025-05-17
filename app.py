@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 from pymongo import MongoClient
 from bson import ObjectId
-import json, os
+import json
 from flask.json.provider import JSONProvider
 
 app = Flask(__name__)
@@ -11,10 +11,10 @@ collection = "memos"
 user = "root"
 password = "pwd1234"
 port = 27018
-ip = "localhost"  # 나중에 수정
+dbService = "localhost"  # "my-db"
 
 client = MongoClient(
-    f"mongodb://{user}:{password}@localhost:{port}/{database}?authSource=admin"
+    f"mongodb://{user}:{password}@{dbService}:{port}/{database}?authSource=admin"
 )
 
 db = client[database]

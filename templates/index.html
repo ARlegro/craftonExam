@@ -72,17 +72,17 @@
         });
 
         // card 수정 버튼 이벤트 : 화면 바뀜
-        $(document).on("click", "#edit-button", function (e) {
+        $(document).on("click", ".edit-button", function (e) {
           e.preventDefault();
           const cardElement = $(this).closest(".card");
           const memoId = $(this).closest("[data-id]").data("id");
           const title = cardElement
-            .find("#card-title")
+            .find(".card-title")
             .text()
             .trim()
             .replace(/\s+/g, " ");
           const content = cardElement
-            .find("#card-text")
+            .find(".card-text")
             .text()
             .trim()
             .replace(/\s+/g, " ");
@@ -96,7 +96,7 @@
         });
 
         // card 삭제 버튼 이벤트 : 삭제
-        $(document).on("click", "#delete-button", function (e) {
+        $(document).on("click", ".delete-button", function (e) {
           e.preventDefault();
           const deletingMemoId = $(this).closest("[data-id]").data("id");
           console.log("삭제할 메모 ID:", deletingMemoId);
@@ -104,7 +104,8 @@
         });
 
         // 좋아요 버튼 이벤트 : 좋아요 수 증가
-        $(document).on("click", "#link-like", function (e) {
+        // like-btn
+        $(document).on("click", ".link-like", function (e) {
           e.preventDefault();
           const memoId = $(this).closest("[data-id]").data("id");
           console.log("좋아요 할 메모 ID:", memoId);
@@ -112,15 +113,15 @@
         });
 
         // card 수정 후 저장 버튼 이벤트 : 제목, 내용 전달
-        $(document).on("click", "#save-button", function (e) {
+        $(document).on("click", ".save-button", function (e) {
           e.preventDefault();
           const cardElement = $(this).closest(".card");
           const id = $(this).data("id");
-          const newTitle = cardElement.find("#new-title").val();
-          const newContent = cardElement.find("#new-text").val();
+          const newTitle = cardElement.find(".new-title").val();
+          const newContent = cardElement.find(".new-text").val();
           editMemo(id, newTitle, newContent);
-          $("#new-title").val("");
-          $("#new-text").val("");
+          $(".new-title").val("");
+          $(".new-text").val("");
           showMemoList();
         });
       });
@@ -136,19 +137,16 @@
                   type="text"
                   value="${title}"
                 />
-                <div class="field is-horizontal mt-3">
-                  <div class="field-body has-text-left">
-                    <div class="field">
-                      <textarea
-                        id="new-text"
-                        class="textarea"
-                      >${content}</textarea>
-                    </div>
+                <div class="field mt-3">
+                  <div class="control">
+                    <textarea
+                      class="new-text textarea"
+                      placeholder="내용을 입력하세요"
+                    >${content}</textarea>
                   </div>
                 </div>
                 <button 
-                  id="save-button"
-                  class="button is-success has-text-weight-bold"
+                  class="save-button button is-success has-text-weight-bold"
                   data-id="${_id}"
                 >
                   저장
@@ -251,7 +249,7 @@
               return;
             }
             const memos = response["memos"];
-            $("#memo-list").empty();
+            $("#card-list").empty();
             for (const memo of memos) {
               addMemoCard(memo);
             }
@@ -267,37 +265,34 @@
 
         const contentHtml = /*html*/ `
                 <div class="row pb-4">
-                  <p id="card-title" class="subtitle has-text-weight-bold">
+                  <p class="card-title subtitle has-text-weight-bold">
                     ${title}
                   </p>
-                  <p class="content" id="card-text">
+                  <p class="card-text content">
                     ${content}
                   </p>
-                  <p id="card-likes">좋아요 수: ${likes}</p>
+                  <p class="card-likes">좋아요 수: ${likes}</p>
                 </div>
 
         `;
 
         const footerHtml = /*html*/ `
-        <div class="row">
+                <div class="row">
                   <div
                     class="buttons is-mobile is-vcentered is-justify-content-center px-2 is-flex-wrap-nowrap"
                     data-id="${_id}"
                   >
                     <button
-                      id="edit-button"
-                      class="button is-info has-text-weight-bold"
+                      class="edit-button button is-info has-text-weight-bold"
                     >
                       수정
                     </button>
                     <button
-                      id="delete-button"
-                      class="button is-warning has-text-weight-bold"
-                      data-id=""
+                      class="delete-button button is-warning has-text-weight-bold"
                     >
                       삭제
                     </button>
-                    <button id="like-btn" class="button is-text">
+                    <button id="like-btn" class="button is-text link-like">
                       <span class="icon">
                         <i class="fas fa-thumbs-up"></i>
                       </span>
@@ -307,7 +302,7 @@
                 </div>
         `;
 
-        $("#memo-list").append(
+        $("#card-list").append(
           `<div class="column is-one-third">
             <div class="card" data-id="${_id}">
               ${contentHtml}
@@ -358,21 +353,21 @@
           </div>
         </section>
         <section class="section">
-          <div id="memo-list" class="columns is-multiline px-1">
+          <div id="card-list" class="columns is-multiline px-1">
             <div class="column is-one-third">
               <div class="card">
                 <div class="row pb-4">
-                  <p id="card-title" class="subtitle has-text-weight-bold">
+                  <p class="card-title subtitle has-text-weight-bold">
                     첫번째 제목
                   </p>
-                  <p class="content" id="card-text">
+                  <p class="card-text content">
                     Lorem ipsum dolor sit amet consectetur adipisicing elit.
                     Dolores magnam reiciendis aperiam nam, dolore reprehenderit?
                     Officia voluptates iste consequuntur vero mollitia numquam
                     sapiente earum, necessitatibus, libero vel, autem eligendi
                     tenetur.
                   </p>
-                  <p id="card-likes">좋아요 수:</p>
+                  <p class="card-likes">좋아요 수:</p>
                 </div>
 
                 <div class="row">
@@ -380,19 +375,17 @@
                     class="buttons is-mobile is-vcentered is-justify-content-center px-2 is-flex-wrap-nowrap"
                   >
                     <button
-                      id="edit-button"
-                      class="button is-info has-text-weight-bold"
+                      class="edit-button button is-info has-text-weight-bold"
                     >
                       수정
                     </button>
                     <button
-                      id="delete-button"
-                      class="button is-warning has-text-weight-bold"
-                      data-id=""
+                      class="delete-button button is-warning has-text-weight-bold"
+                      data-id="${_id}"
                     >
                       삭제
                     </button>
-                    <button id="like-btn" class="button is-text">
+                    <button id="like-btn" class="button is-text link-like">
                       <span class="icon">
                         <i class="fas fa-thumbs-up"></i>
                       </span>
@@ -405,26 +398,21 @@
             <div class="column is-one-third">
               <div class="card">
                 <input
-                  id="new-title"
-                  class="input is-link"
+                  class="new-title input is-link"
                   type="text"
                   placeholder="제목을 입력하세요"
                   value="수정된 제목"
                 />
-                <div class="field is-horizontal mt-3">
-                  <div class="field-body">
-                    <div class="field">
-                      <textarea
-                        id="new-text"
-                        class="textarea"
-                        placeholder="내용을 입력하세요"
-                      ></textarea>
-                    </div>
+                <div class="field mt-3">
+                  <div class="control">
+                    <textarea
+                      class="new-text textarea"
+                      placeholder="내용을 입력하세요"
+                    ></textarea>
                   </div>
                 </div>
                 <button
-                  id="save-button"
-                  class="button is-success has-text-weight-bold"
+                  class="save-button button is-success has-text-weight-bold"
                 >
                   저장
                 </button>
