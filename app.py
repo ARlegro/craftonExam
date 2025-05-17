@@ -73,16 +73,6 @@ def getMemos():
         return jsonify({"result": "error", "message": str(e)})
 
 
-@app.route("/memos/<id>", methods=["DELETE"])
-def deleteMemo(id):
-    result = db[collection].delete_one({"_id": ObjectId(id)})
-
-    if result.deleted_count != 1:
-        return jsonify({"result": "error", "message": "메모 삭제 실패"})
-
-    return jsonify({"result": "success", "message": "메모 삭제 완료"})
-
-
 @app.route("/memos/<id>", methods=["PUT"])
 def editMemo(id):
     data = request.get_json()
@@ -93,9 +83,9 @@ def editMemo(id):
     )
 
     if result.matched_count != 1:
-        return jsonify({"result": "error", "message": "메모 좋아요 실패"})
+        return jsonify({"result": "error", "message": "메모 수정 실패"})
 
-    return jsonify({"result": "success", "message": "메모 좋아요 완료"})
+    return jsonify({"result": "success", "message": "메모 수정 완료"})
 
 
 @app.route("/memos/<id>/like", methods=["PATCH"])
@@ -106,6 +96,16 @@ def likeMemo(id):
         return jsonify({"result": "error", "message": "메모 좋아요 실패"})
 
     return jsonify({"result": "success", "message": "메모 좋아요 완료"})
+
+
+@app.route("/memos/<id>", methods=["DELETE"])
+def deleteMemo(id):
+    result = db[collection].delete_one({"_id": ObjectId(id)})
+
+    if result.deleted_count != 1:
+        return jsonify({"result": "error", "message": "메모 삭제 실패"})
+
+    return jsonify({"result": "success", "message": "메모 삭제 완료"})
 
 
 if __name__ == "__main__":
