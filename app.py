@@ -53,8 +53,6 @@ def registerMemo():
         return jsonify({"reuslt": " error", "messgae": "제목을 입력하세요."})
 
     memo = {"title": title, "content": content, "likes": 0}
-
-    print(f"서버에서 등록할 메모 : {memo}")
     result = db[collection].insert_one(memo)
 
     if not result.acknowledged:
@@ -67,9 +65,12 @@ def registerMemo():
 def getMemos():
     sort = "likes"
     sortdirection = -1
-    memos = list(db[collection].find().sort(sort, sortdirection))
-    print(f"조회된 메모 : {memos}")
-    return jsonify({"result": "success", "memos": memos})
+    try:
+        memos = list(db[collection].find().sort(sort, sortdirection))
+        return jsonify({"result": "success", "memos": memos})
+
+    except Exception as e:
+        return jsonify({"result": "error", "message": str(e)})
 
 
 @app.route("/memos/<id>", methods=["DELETE"])
@@ -85,7 +86,6 @@ def deleteMemo(id):
 @app.route("/memos/<id>", methods=["PUT"])
 def editMemo(id):
     data = request.get_json()
-    print(f"수정할 메모 : {data}")
     title = data["title"]
     content = data["content"]
     result = db[collection].update_one(
@@ -109,4 +109,4 @@ def likeMemo(id):
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000)
